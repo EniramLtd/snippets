@@ -1,0 +1,105 @@
+#!/bin/sh
+# chkconfig: 45 90 10
+
+
+# Based on gist #1511911 by xspager: https://gist.github.com/xspager/1511911
+
+# Sample config (/etc/default/gunicorn):
+#
+# Use single tab to separate entries in SERVERS
+# SERVERS=(
+#	'server_name	socket_or_url	workdir	app_module	number_of_workers'
+# )
+#
+
+
+# WARNING: user $RUN_AS must have +w on $PIDDIR
+
+GUNICORN=/path/to/gunicorn
+NAME=gunicorn
+DESC=gunicorn
+SERVER="$2"
+PIDDIR=/var/run/eniram/
+CONFIG_PATH=/etc/default/gunicorn
+RUN_AS=eniram
+
+test -x $GUNICORN || exit 0
+
+# Source function library.
+. /etc/rc.d/init.d/functions
+
+# Source networking configuration.
+. /etc/sysconfig/network
+
+# Check that networking is up.
+[ "$NETWORKING" = "no" ] && exit 0
+
+if [ -f $CONFIG_PATH ] ; then
+	. $CONFIG_PATH
+fi
+
+if [ ! -d $PIDDIR ]; then
+	mkdir $PIDDIR
+fi
+
+start () {
+	for i in "${SERVERS[@]}"
+	do
+		:
+		set -- "$i"
+		IFS="	"; declare -a data=($*)
+
+		if [ "$SERVER" ]; then
+			if [ "$SERVER" != ${data[0]} ]; then
+				continue
+			fi
+		fi
+		echo "Spawning ${data[0]}"
+        cd ${data[2]}
+		daemon --user $RUN_AS --pidfile $PIDDIR/${data[0]}.pid $GUNICORN -b ${data[1]} \
+		       -w ${data[4]} -D -p /var/run/gunicorn/${data[0]}.pid --log-config logging.conf ${data[3]}
+	done
+	return
+}
+
+stop () {
+	for i in "${SERVERS[@]}"
+	do
+		:
+		set -- "$i"
+		IFS="	"; declare -a data=($*)
+		if [ "$SERVER" ]; then
+			if [ "$SERVER" != ${data[0]} ]; then
+				continue
+			fi
+		fi
+		if [ -f $PIDDIR/${data[0]}.pid ]; then
+			echo "Killing ${data[0]}"
+			kill $(cat $PIDDIR/${data[0]}.pid)
+		fi
+	done
+}
+
+case "$1" in
+  start)
+		echo "Starting $DESC"
+		start
+		;;
+  stop)
+		echo "Stopping $DESC"
+		stop
+		;;
+  restart)
+		echo "Restarting $DESC"
+		stop
+		sleep 1
+		start
+		;;
+  *)
+		N=/etc/init.d/$NAME
+		echo "Usage: $N {start|stop|restart} [particular_server_to_restart]" >&2
+		exit 1
+		;;
+esac
+
+exit 0
