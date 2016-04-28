@@ -19,6 +19,6 @@ using a CentOS 6 Haskell Docker image and cabal::
 Then while still having the Docker container running,
 copy the compiled binary on the host machine::
 
-    docker cp <container name>:<path to pandoc binary> ./
+    docker cp <container name>:/root/.cabal/bin/pandoc ./
     
 .. _EPEL: https://fedoraproject.org/wiki/EPEL
