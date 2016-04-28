@@ -1,0 +1,19 @@
+# This is file defining the REST services managed by the foobar-gunicorn system service
+# It is not meant to be modified by the user
+
+# SERVERS is a array of strings, separated by whitespace
+# each string consist of
+# - service_name
+# - bind ip and port
+# - working directory
+# - WSGI app to serve
+# - number of workers
+SERVERS=(
+    'foobar_service_1	0.0.0.0:5508	/opt/eniram/foobar/	foobar_service_1.application:app	5'
+)
+
+# These are explained in service init script
+RUN_AS=eniram
+GUNICORN=/opt/eniram/foobar/bin/venv/bin/gunicorn
+CONFIG_PATH=/etc/eniram/default/foobar-gunicorn
+PIDDIR=/var/run/eniram/

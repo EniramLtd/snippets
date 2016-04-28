@@ -1,0 +1,4 @@
+# This is configuration file for the foobar-gunicorn service, it is sourced in the service
+
+LOGGING=/opt/eniram/foobar/logging.ini
+#LOGGING=/opt/eniram/foobar/logging_debug.ini

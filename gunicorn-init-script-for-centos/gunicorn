@@ -4,29 +4,26 @@
 
 # Based on gist #1511911 by xspager: https://gist.github.com/xspager/1511911
 
-# Sample config (/etc/default/gunicorn):
-#
-# Use single tab to separate entries in SERVERS
-# SERVERS=(
-#	'server_name	socket_or_url	workdir	app_module	number_of_workers'
-# )
-#
-
 
 # WARNING: user $RUN_AS must have +w on $PIDDIR
-
-GUNICORN=/path/to/gunicorn
-NAME=gunicorn
-DESC=gunicorn
+NAME=foobar-gunicorn
+DESC=foobar-gunicorn
 SERVER="$2"
-PIDDIR=/var/run/eniram/
-CONFIG_PATH=/etc/default/gunicorn
-RUN_AS=eniram
 
-test -x $GUNICORN || exit 0
+
+# Configure non-changing service details
+# GUNICORN : path to gunicorn binary
+# RUN_AS  : username to run the service
+# SERVERS : service definitions
+# CONFIG_PATH : user configuration that is sourced
+# PIDDIR : path to store pid files in
+. /opt/eniram/foobar/gunicorn_service_env
+
+
+test -x $GUNICORN || (echo "GUNICORN env variable not set or invalid " && exit 0)
 
 # Source function library.
-. /etc/rc.d/init.d/functions
+. /etc/init.d/functions
 
 # Source networking configuration.
 . /etc/sysconfig/network
@@ -34,6 +31,8 @@ test -x $GUNICORN || exit 0
 # Check that networking is up.
 [ "$NETWORKING" = "no" ] && exit 0
 
+
+# User configuration (e.g. logging)
 if [ -f $CONFIG_PATH ] ; then
 	. $CONFIG_PATH
 fi
@@ -57,7 +56,7 @@ start () {
 		echo "Spawning ${data[0]}"
         cd ${data[2]}
 		daemon --user $RUN_AS --pidfile $PIDDIR/${data[0]}.pid $GUNICORN -b ${data[1]} \
-		       -w ${data[4]} -D -p /var/run/gunicorn/${data[0]}.pid --log-config logging.conf ${data[3]}
+		       -w ${data[4]} -D -p $PIDDIR/${data[0]}.pid --log-config $LOGGING ${data[3]}
 	done
 	return
 }
@@ -80,6 +79,23 @@ stop () {
 	done
 }
 
+rhstatus () {
+	for i in "${SERVERS[@]}"
+	do
+		:
+		set -- "$i"
+		IFS="	"; declare -a data=($*)
+		if [ "$SERVER" ]; then
+			if [ "$SERVER" != ${data[0]} ]; then
+				continue
+			fi
+		fi
+        echo "status ${data[0]}:"
+        status -p "$PIDDIR/${data[0]}.pid" $GUNICORN
+	done
+}
+
+
 case "$1" in
   start)
 		echo "Starting $DESC"
@@ -88,6 +104,10 @@ case "$1" in
   stop)
 		echo "Stopping $DESC"
 		stop
+		;;
+  status)
+		echo "Listing status of $DESC"
+		rhstatus
 		;;
   restart)
 		echo "Restarting $DESC"
