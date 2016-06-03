@@ -14,3 +14,6 @@ you can try this (tested in PyCharm 2016.1.4):
 - open the Edit dialog (pencil icon)
 - make sure "Associate this virtual environment with current project" is checked and click OK
 - choose File / "Invalidate Caches / Restart"
+
+**However,** in at least one project with PyCharm 2016.1.4, the original problem reappears
+after indexing has completed after cache invalidation.
