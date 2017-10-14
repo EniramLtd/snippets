@@ -28,7 +28,7 @@ you can use the pytest-logging_ package::
 
   $ pip install pytest-logging
 
-In your Run/Debug confgurations set Additional arguments to:
+In your Run/Debug confgurations set Additional arguments to::
 
   -vvvv -s
 
