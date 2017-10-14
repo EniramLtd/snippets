@@ -35,8 +35,6 @@ In your Run/Debug Confgurations set Additional Arguments to::
 Run your tests and you should see DEBUG level log output.
 
 
-.. _pytest-logging: https://pypi.python.org/pypi/pytest-logging
-
 If you also want to customize the log format,
 you'll need the development version of pytest-catchlog_::
 
@@ -46,3 +44,7 @@ The command line options to set in the Additional Arguments field
 of the Run/Debug Configurations dialog are now e.g. as follows::
 
   --log-format="%(message)s" --log-cli-level=DEBUG -s
+
+
+.. _pytest-logging: https://pypi.python.org/pypi/pytest-logging
+.. _pytest-catchlog: https://github.com/eisensheng/pytest-catchlog
