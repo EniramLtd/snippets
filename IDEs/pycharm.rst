@@ -17,3 +17,22 @@ you can try this (tested in PyCharm 2016.1.4):
 
 **However,** in at least one project with PyCharm 2016.1.4, the original problem reappears
 after indexing has completed after cache invalidation.
+
+
+Setting the log level for unit test when running pytest
+-------------------------------------------------------
+
+Normally PyCharm only sees log output at the default log level.
+If you want to enable e.g. DEBUG level logging to see more details,
+you can use the pytest-logging_ package::
+
+  $ pip install pytest-logging
+
+In your Run/Debug confgurations set Additional arguments to:
+
+  -vvvv -s
+
+Run your tests and you should see DEBUG level log output.
+
+
+.. _pytest-logging: https://pypi.python.org/pypi/pytest-logging
